@@ -54,7 +54,7 @@ screenshot.save("test.png")  # Save the screenshot as "screenshot.png"
 
 
 # Open chrome and search for a keyword
-"""
+
 pyautogui.press("win")  # Press the Windows key
 time.sleep(1)  # Wait for 1 second
 pyautogui.typewrite("Chrome", interval=0.1)  # Type "Chrome" with a delay of 0.1 seconds between each character
@@ -99,7 +99,7 @@ pyautogui.hotkey('ctrl', 'v')  # Press Ctrl+V to paste the copied text
 screenshot = pyautogui.screenshot()  # Capture a screenshot of the entire screen
 screenshot.save("test.png")  # Save the screenshot as "screenshot.png"
 
-"""
+
 
 #Playwright Automation
 '''
@@ -112,10 +112,10 @@ with sync_playwright() as p:
     #browser.close()  # Close the browser
 '''
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)  # Launch a Chromium browser
-    page = browser.new_page()  # Create a new page
-    page.goto("https://www.bimeducation.in/")  # Navigate to the website
-    page.wait_for_load_state("networkidle")  # Wait for the page to load completely
-    time.sleep(30)  # Wait for 3 seconds for the website to load
-    page.close()  # Close the browser
+# with sync_playwright() as p:
+#     browser = p.chromium.launch(headless=False)  # Launch a Chromium browser
+#     page = browser.new_page()  # Create a new page
+#     page.goto("https://www.bimeducation.in/")  # Navigate to the website
+#     page.wait_for_load_state("networkidle")  # Wait for the page to load completely
+#     time.sleep(30)  # Wait for 3 seconds for the website to load
+#     page.close()  # Close the browser
