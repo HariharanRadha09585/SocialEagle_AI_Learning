@@ -1,6 +1,175 @@
+# Documents loaded from the Langchain OpenAI Embeddings example
+"""
+text = "Hello, how are you?"
+
+with open("example.txt", "w") as f:
+    f.write(text)  # Write the text to a file named example.txt
+
+print("File was created successfully!")  # Print a success message
+
+
+from langchain_community.document_loaders import TextLoader
+loader = TextLoader("example.txt")  # Initialize a TextLoader with the created file
+
+documents = loader.load()  # Load the documents from the file
+
+print(documents[0].page_content)  # Print the loaded documents
+"""
+
+# Text Spitter
+
+
+# text = """A Special Thanks to Natasha for her incredible support and guidance throughout the recruitment and onboarding process. 
+# Your dedication, patience, and constant assistance made the entire experience smooth and memorable. I sincerely appreciate all your efforts!"""
+
+# from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+# splitter = RecursiveCharacterTextSplitter(
+#     chunk_size=80,  # Set the chunk size to 80 characters
+#     chunk_overlap=20  # Set the chunk overlap to 20 characters
+# )
+
+# chunks = splitter.split_text(text)  # Split the text into chunks
+
+# print(chunks)  # Print the resulting chunks
+
+
+# Embeddings
+"""
 from langchain_openai import OpenAIEmbeddings
 from dotenv import load_dotenv
 import os
 
 load_dotenv()  # Load environment variables from .env file
 apiKey = os.getenv("openai_api_Key")  # Get the OpenAI API key from environment variables
+
+openai_embeddings = OpenAIEmbeddings(openai_api_key=apiKey)  # Initialize OpenAI embeddings with the API key
+
+text = "Hello, how are you?"  # Define the text to be embedded
+embedding = openai_embeddings.embed_query(text)  # Generate the embedding for the text
+
+print(embedding[0:5])  # Print the generated embedding
+"""
+
+#Vector Store
+
+"""
+from langchain_openai import OpenAIEmbeddings
+from dotenv import load_dotenv
+import os
+
+from langchain_community.document_loaders import TextLoader
+from langchain_community.vectorstores import FAISS
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+  
+
+
+
+
+load_dotenv()  # Load environment variables from .env file
+apiKey = os.getenv("openai_api_Key")  # Get the OpenAI API key from environment variables
+
+openai_embeddings = OpenAIEmbeddings(openai_api_key=apiKey)  # Initialize OpenAI embeddings with the API key
+loader = TextLoader("Week_2/knowledge.txt", encoding="utf-8")  # Initialize a TextLoader with the created file
+documents = loader.load()  # Load the documents from the file
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=80,  # Set the chunk size to 80 characters
+    chunk_overlap=20  # Set the chunk overlap to 20 characters
+)
+
+chunks = splitter.split_documents(documents)  # Split the text into chunks
+
+#embedding = openai_embeddings.embed_query(chunks)  # Generate the embedding for the text
+
+vector_store = FAISS.from_documents(chunks, openai_embeddings)  # Create a FAISS vector store from the text chunks and embeddings
+
+query = "Bim"  # Define a query to search in the vector store
+results = vector_store.similarity_search(query,k=2)  # Perform a similarity search in the vector store
+
+print("Results from similarity search:")  # Print a message indicating the results
+for result in results:
+    print(result.page_content)  # Print the content of each result
+
+#save and load the vector store
+vector_store.save_local("My_VectorStore")  # Save the vector store locally
+
+#Load it back later
+loaded_vector_store = FAISS.load_local("My_VectorStore", openai_embeddings,allow_dangerous_deserialization=True)  
+
+
+#Retrieve the results from the loaded vector store
+
+retriever = loaded_vector_store.as_retriever(search_kwargs={"k": 2})  # Create a retriever from the loaded vector store
+
+question = "What is Bim?"  # Define a question to ask the retriever
+results = retriever.invoke(question)  # Invoke the retriever with the question
+
+print("Results from retriever:")  # Print a message indicating the results
+for result in results:
+    print(result.page_content)  # Print the content of each result  
+
+"""
+
+#Chain
+
+"""
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+import os
+
+
+
+load_dotenv()  # Load environment variables from .env file
+apiKey = os.getenv("openai_api_Key")  # Get the OpenAI API key from environment variables
+
+prompt = ChatPromptTemplate.from_template("You are a helpful assistant. Answer the following question: {question}")  # Create a chat prompt template
+
+model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, openai_api_key=apiKey)  # Initialize a ChatOpenAI model with specified parameters
+
+output_parser = StrOutputParser()  # Initialize a string output parser
+
+chain = prompt | model | output_parser  # Create a chain by combining the prompt, model, and output parser
+
+answer = chain.invoke({"question": "What is Bim?"})  # Invoke the chain with a question
+print("Answer from chain:")  # Print a message indicating the answer
+print(answer)  # Print the answer   
+"""
+
+#Langsmith
+
+import os
+langsmith_api_key = os.getenv("langsmith_api_Key")
+langsmith_project = os.getenv("langsmith_project")
+from openai import OpenAI
+from langchain_openai import ChatOpenAI
+from langsmith.wrappers import wrap_openai
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+
+
+
+load_dotenv()  # Load environment variables from .env file
+apiKey = os.getenv("openai_api_Key")  # Get the OpenAI API key from environment variables
+
+client = wrap_openai(OpenAI(api_key=apiKey))
+
+prompt = ChatPromptTemplate.from_template("You are a helpful assistant. Answer the following question: {question}")  # Create a chat prompt template
+
+model = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, openai_api_key=apiKey)  # Initialize a ChatOpenAI model with specified parameters
+
+output_parser = StrOutputParser()  # Initialize a string output parser
+
+chain = prompt | model | output_parser  # Create a chain by combining the prompt, model, and output parser
+
+answer = chain.invoke({"question": "What is Bim?"})  # Invoke the chain with a question
+print("Answer from chain:")  # Print a message indicating the answer
+print(answer)  # Print the answer
+
+
+

@@ -1,0 +1,43 @@
+import os
+from urllib import response
+from dotenv import load_dotenv
+
+from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
+
+load_dotenv()
+
+apiKey = os.getenv("openai_api_Key")
+
+
+if not apiKey:
+    raise ValueError("OpenAI API key is missing!")
+
+llm = ChatOpenAI(
+    model_name="gpt-3.5-turbo",
+    temperature=0,
+    openai_api_key=apiKey)
+
+
+messages = [
+    SystemMessage(content="You are a friendly teacher. Keep answers very short."),
+    HumanMessage(content="my name is hari?")
+]
+
+
+
+
+reply = llm.invoke(messages)
+
+print("Answer from chain:" + reply.content)
+
+messages.append(reply)
+messages.append(HumanMessage(content="What is my name?"))
+
+reply = llm.invoke(messages)
+
+
+print("Type of reply:", type(reply).__name__)
+print("Reply text:", reply.content)
+
+

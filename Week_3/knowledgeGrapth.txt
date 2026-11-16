@@ -1,0 +1,13 @@
+BIM Automation Knowledge Base
+
+[01] Dynamo and Revit
+Dynamo integrates with Autodesk Revit. The Door Compliance Check is a Dynamo workflow. The Door Compliance Check reads the Width and Height parameters of Door elements. The Door Compliance Check generates a Door Compliance Report.
+
+[02] Python and the Revit API
+Dynamo supports Python scripting. Python scripts in Dynamo can call the Revit API. The Revit API includes the FilteredElementCollector class and the Transaction class. The Duct Inventory workflow uses FilteredElementCollector to collect Duct elements. The Parameter Synchronization workflow uses Transaction to modify parameters in a Revit document.
+
+[03] Clash detection
+The Duct–Beam Clash Check is a sample workflow that uses the Revit API. The Duct–Beam Clash Check checks for intersections between Duct elements and Structural Beam elements. It uses bounding boxes to shortlist candidate pairs. It uses ElementIntersectsSolidFilter to test candidates against a solid. The Duct–Beam Clash Check generates a Clash Report. The Clash Report records the identifiers of the elements involved in each detected clash.
+
+[04] Autodesk Platform Services
+Autodesk Platform Services (APS) includes the Authentication API, the Data Management API, the Model Derivative API, and the Viewer SDK. The Authentication API uses OAuth 2.0 to obtain access tokens. The Data Management API provides access to supported project files in Autodesk Docs. The Model Derivative API translates supported design files into viewable derivatives. The Viewer SDK displays viewable derivatives in web applications.

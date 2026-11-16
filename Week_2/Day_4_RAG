@@ -1,0 +1,107 @@
+
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.vectorstores import FAISS
+from langchain_openai import OpenAIEmbeddings
+from langsmith.wrappers import wrap_openai
+
+from openai import OpenAI, OpenAIError
+
+# STEP 1: Load API Key
+load_dotenv()
+
+apiKey = os.getenv("openai_api_Key")
+
+if not apiKey:
+    raise ValueError("OpenAI API key is missing!")
+
+# STEP 2: Define Question
+question = "What is BIM Automation?"
+
+# STEP 3: Load Document
+file_path = Path(__file__).resolve().parent / "knowledge.txt"
+
+loader = TextLoader(str(file_path), encoding="utf-8")
+documents = loader.load()
+
+print("Document loaded successfully!", flush=True)
+
+# STEP 4: Split Document
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,
+    chunk_overlap=100
+)
+
+chunks = splitter.split_documents(documents)
+
+print(f"Total Chunks: {len(chunks)}", flush=True)
+
+# STEP 5: Create Embeddings
+embeddings = OpenAIEmbeddings(
+    model="text-embedding-3-small",
+    api_key=apiKey,
+    request_timeout=30,
+    max_retries=0
+)
+
+# STEP 6: Create Vector Database
+vector_store = FAISS.from_documents(
+    chunks,
+    embeddings
+)
+
+print("FAISS vector store created!", flush=True)
+
+# STEP 7: Similarity Search
+results = vector_store.similarity_search(
+    question,
+    k=3
+)
+
+# STEP 8: Build Context
+context = "\n\n".join(
+    result.page_content for result in results
+)
+
+print("\nRetrieved Context:")
+print(context)
+
+# STEP 9: Initialize OpenAI Client
+client = wrap_openai(
+    OpenAI(api_key=apiKey)
+)
+
+# STEP 10: Generate Answer
+try:
+    print("\nGenerating answer...", flush=True)
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Answer using only the provided context. "
+                    "If the answer is not available in the context, "
+                    "say that the information is not available."
+                )
+            },
+            {
+                "role": "user",
+                "content": (
+                    f"Context:\n{context}\n\n"
+                    f"Question: {question}"
+                )
+            }
+        ]
+    )
+
+    print("\nFinal Answer:")
+    print(response.choices[0].message.content)
+
+except OpenAIError as e:
+    print("OpenAI API Error:", e)
